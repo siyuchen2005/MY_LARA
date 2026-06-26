@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+    <link rel="icon" href="./favicon.ico">
+    <title>Lara and Yuyu's story</title>
+    <link rel="stylesheet" type="text/css" href="./css/loveLara.css">
+    <link rel="stylesheet" href="./css/swiper.css">
+    <link rel="stylesheet" type="text/css" href="./css/FiraCode.css">
+    <style>
+        /* ----------------新增：音乐控制与弹窗样式---------------- */
+        /* 音乐控制悬浮窗 */
+        .music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            background-color: rgba(255, 182, 193, 0.9); /* 浪漫浅粉色 */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 99999;
+            box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
+            transition: transform 0.3s, background-color 0.3s;
+            user-select: none;
+        }
+        .music-control:hover {
+            transform: scale(1.1);
+            background-color: rgba(255, 105, 180, 0.9);
+        }
+        /* 播放时的旋转动画 */
+        .music-control.playing {
+            animation: spin 4s linear infinite;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        /* 暂停时的样式，略微变暗 */
+        .music-control.paused {
+            opacity: 0.6;
+            animation: none;
+        }
+
+        /* 音乐初始询问弹窗 */
+        .music-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999999; /* 确保在最顶层 */
+            backdrop-filter: blur(3px);
+        }
+        .music-modal-content {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            max-width: 80%;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .music-modal-content p {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 25px;
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+        }
+        .music-modal-buttons button {
+            margin: 0 10px;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        #btnPlayMusic {
+            background-color: #ffb6c1; 
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(255, 182, 193, 0.5);
+        }
+        #btnPlayMusic:hover {
+            background-color: #ff69b4;
+            transform: translateY(-2px);
+        }
+        #btnNoMusic {
+            background-color: #f1f1f1;
+            color: #888;
+        }
+        #btnNoMusic:hover {
+            background-color: #e2e2e2;
+            color: #555;
+            transform: translateY(-2px);
+        }
+
+        /* ----------------原有：放大图片的遮罩层样式---------------- */
+        #imgZoomModal {
+            display: none; 
+            position: fixed; 
+            z-index: 9999999; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.85); 
+            align-items: center; 
+            justify-content: center; 
+            opacity: 0; 
+            transition: opacity 0.3s ease; 
+            cursor: zoom-out;
+        }
+        #zoomedImg {
+            max-width: 90%; 
+            max-height: 90%; 
+            object-fit: contain; 
+            border-radius: 15px; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.8); 
+            transform: scale(0.8); 
+            transition: transform 0.3s ease;
+        }
+        .page2-box img {
+            cursor: zoom-in;
+            transition: transform 0.3s ease;
+        }
+        .page2-box img:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+
+<body>
+    <audio id="bgMusic" loop>
+        <source src="./audio/Isa_lang.MP3" type="audio/mpeg">
+    </audio>
+
+    <div id="musicControl" class="music-control paused" title="点击播放/暂停音乐">
+        🎵
+    </div>
+
+    <div id="musicPromptModal" class="music-modal">
+        <div class="music-modal-content">
+            <p>Would you like to play our background music? 🎶</p>
+            <div class="music-modal-buttons">
+                <button id="btnPlayMusic">Yes!</button>
+                <button id="btnNoMusic">Later</button>
+            </div>
+        </div>
+    </div>
+    <div class="title">
+        <img src="./images/bg1.gif" alt="bgGif">
+        <p id="SiyuandLara"></p>
+    </div>
+
+    <div class="page page1">
+        <div class="swiper-container swiper-container-lovexhj1">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <div class="page1-lovexhj1">
+                        <img src="images/lara.jpg" alt="Lara">
+                        <img src="./images/cat.gif" alt="cat">
+                        <img src="images/Siyu.jpg" alt="Siyu">
+                        <p id="lovetime"></p>
+                        <p>I've got a little surprise for you</p>
+                        <span class="right">Swipe right~! →</span>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="page1-lovexhj1">
+                        <img class="cat" src="./images/薅头发.jpg" alt="薅头发">
+                        <p class="catText">Your signature sticker ↑</p>
+                        <p>I think it's a bit painful...</p>
+                        <span class="right">Swipe again →</span>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="page1-lovexhj1">
+                        <img class="cat" src="./images/cat3.gif" alt="cat3">
+                        <p class="catText">Your Dream(I know) ↑</p>
+                        <p>Everytime I see you are<b> so cute</b></p>
+                        <p>I want to hug you like that</p>
+                        <span class="right">Swipe again →</span>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="page1-lovexhj1">
+                        <img class="cat" src="./images/cat4.gif" alt="cat4">
+                        <p class="catText">Pad your head ↑</p>
+                        <p>My little baliw princess<span style="color: red;">❤</span></p>
+                        <p>Love youuuuuu<span style="color: red;">❤</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="swiper-pagination swiper-pagination-lovexhj1"></div>
+        </div>
+    </div>
+
+    <div class="page page2">
+        <div class="swiper-container swiper-container-lovexhj2">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <div class="page2-box">
+                        <img src="./images/page-2-1.jpg" alt="page2-1">
+                        <p><b>Where it all began</b></p>
+                        <p>2026-04-10</p>
+                        <p>Where our forever started</p>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="page2-box">
+                        <img src="./images/page-2-2.jpg" alt="page2-2">
+                        <p><b>Jungkook, the fisrt name in our chat except our names</b></p>
+                        <p>He are jealous to me, you don't speak of him too much now</p>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="page2-box">
+                        <img src="./images/page-2-3.jpg" alt="page2-3">
+                        <p><b>The first message on Wechat</b></p>
+                        <p>Back then, you don't know how sweet we will be in the future</p>
+                        <p>So didn't I</p>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="page2-box">
+                        <img src="./images/page-2-4.jpg" alt="page2-4">
+                        <p><b>"I love you" </b></p>
+                        <p>I was blushed~</p>
+                        <p>You were shy too~</p>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="page2-box">
+                        <img src="./images/page-2-5.jpg" alt="page2-5">
+                        <p><b>I wrote down your name</b></p>
+                        <p>(Arabia is so difficult😭)</p>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="page2-box">
+                        <img src="./images/page-2-7.jpg" alt="page2-7">
+                        <p><b>The first movie we watched together</b></p>
+                        <p>You are my Gwen, I am your Spider Man(♥ω♥*)</p>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="page2-box">
+                        <img src="./images/page-2-9.jpg" alt="page2-9">
+                        <p><b>COD!!</b></p>
+                        <p>XBOX can't stop us from playing COD!!</p>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="page2-box">
+                        <img src="./images/page-2-8.jpg" alt="page2-8">
+                        <p><b>It was the first picture of you that you sent to me</b></p>
+                        <p>I guess I was so into you that time</p>
+                        <p>Funny story: I "beg" it for a long while!</p>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="page2-box">
+                        <img src="./images/page-2-6.jpg" alt="page2-6">
+                        <p><b>We are together~HAHAHAH</b></p>
+                        <p>It was still in the cafe(≧◡≦)</p>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="page2-box">
+                        <img src="./images/page-2-10.jpg" alt="page2-10">
+                        <p><b>The first gift you prepared for me</b></p>
+                        <p>I love it so much!!</p>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="page2-box">
+                        <img src="./images/page-2-11.jpg" alt="page2-11">
+                        <p><b>More？</b></p>
+                        <p>Unlcok them by talking with you cute yuyu aww</p>
+                        <p>Btw, a baliw picture of you HAHAHAHAHAHAH</p>
+                    </div>
+                </div>
+            </div>
+            <div class="swiper-pagination swiper-pagination-lovexhj2"></div>
+        </div>
+    </div>
+
+    <div class="page page3">
+        <div id="Lara">
+            <b>And a little more from my heart...</b>
+            <br />
+            This is the first gift I made for you, I don't know if you will like it :) 
+            <br><br>
+            I know you may feel a little disappointed because, this year, I can only be with you distantly. I know how it feels when you feel bad, I can't give you warmth, hugs, or kisses in person right now. Nor can I wrap my arms around you from behind when you are sad or hurting, hold your hand tightly, and give you strength through my touch. In this regard, I know I haven't been the boyfriend you deserve.
+            <br><br>
+            But just as we always say to each other:"It was God who brought us together." He blesses our joy, and even distance can’t erase the bond between us when we long for each other through every lonely night. We will keep walking this path together, until the day we finally get married, and stroll hand in hand by the lake, taking in the scenery. I can't wait to just gaze at you in the warm sunset, with every strand of your hair and every inch of you glowing in the light.
+            <br><br>
+            Eventually, we will build our own family and have children, and I will tell them how deeply their mom and dad loved each other. I will tell them how gentle, beautiful, and adorable their mommy is. I will tell them our love story is just as tender and everlasting as the most beautiful love ballad. And I will tell them that, in my heart, their mommy will always be the girl most deserving of being cherished in this world.
+            <br><br>
+            I love you.
+        </div>
+    </div>
+
+    <div class="page page4">
+        <div class="page4-box">
+            <div class="page4-img">
+                <div class="swiper-container swiper-container-lovexhj3">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <img src="./images/page-4-1.png" alt="page-4-1">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./images/page-4-2.jpg" alt="page-4-2">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./images/page-4-3.jpg" alt="page-4-3">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./images/page-4-4.jpg" alt="page-4-4">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./images/page-4-5.jpg" alt="page-4-5">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./images/page-4-6.jpg" alt="page-4-6">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./images/page-4-7.jpg" alt="page-4-7">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./images/page-4-8.jpg" alt="page-4-8">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./images/page-4-9.jpg" alt="page-4-9">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./images/page-4-10.jpg" alt="page-4-10">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./images/page-4-11.jpg" alt="page-4-11">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./images/page-4-12.jpg" alt="page-4-12">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./images/page-4-13.jpg" alt="page-4-13">
+                        </div>
+                    </div>
+                    <div class="swiper-button-prev swiper-button-prev-lovexhj3"></div>
+                    <div class="swiper-button-next swiper-button-next-lovexhj3"></div>
+                </div>
+            </div>
+            <div class="page4-text">
+                <h1>Send To Future</h1>
+                <p>"You make every day taste like chocolate</p>
+                <p>"'Tell me you love me'"</p>
+                <p>"'I love you'"</p>
+                <p>"'How much?'"</p>
+                <p>"'More than yesterday, less than tomorrow'"</p>
+                <br>
+                <p>"'We both know there is no end for us'"</p>
+                <p>"'Love grants us courage to keep on going'"</p>
+                <p>"'I fear nothing with you in my hear'"</p>
+                <p>"'No one could hurt me when I'm in your heart'"</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footerBox">
+            </div>
+        </div>
+    </div>
+
+    <div id="imgZoomModal">
+        <img id="zoomedImg" src="">
+    </div>
+
+    <script src="https://cdn.bootcss.com/wow/1.1.2/wow.js"></script>
+    <script src="./js/typeit.min.js"></script>
+    <script src="./js/swiper-3.4.2.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.0/jquery.js"></script>
+
+    <script src="./js/lovetime.js"></script>
+    <script src="./js/talk.js"></script>
+    <script src="./js/swiper.js"></script>
+    <script src="./js/su.js"></script>
+    
+    <script>
+        (function () {
+            new WOW().init()
+        })()
+    </script>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $('body').wpSuperSnow({
+                flakes: ['./images/004.png', './images/003.png', './images/002.png',
+                    './images/001.png'
+                ],
+                totalFlakes: '100',
+                zIndex: '999999',
+                maxSize: '30',
+                maxDuration: '20',
+                useFlakeTrans: false
+            });
+        });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById('imgZoomModal');
+        var modalImg = document.getElementById('zoomedImg');
+        
+        var page2Images = document.querySelectorAll('.page2-box img');
+
+        page2Images.forEach(function(img) {
+            img.onclick = function() {
+                modal.style.display = 'flex';
+                setTimeout(function() {
+                    modal.style.opacity = '1';
+                    modalImg.src = img.src;
+                    modalImg.style.transform = 'scale(1)';
+                }, 10);
+            };
+        });
+
+        modal.onclick = function() {
+            modal.style.opacity = '0';
+            modalImg.style.transform = 'scale(0.8)';
+            setTimeout(function() {
+                modal.style.display = 'none';
+            }, 300);
+        };
+    });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const music = document.getElementById('bgMusic');
+        const musicControl = document.getElementById('musicControl');
+        const musicPromptModal = document.getElementById('musicPromptModal');
+        const btnPlayMusic = document.getElementById('btnPlayMusic');
+        const btnNoMusic = document.getElementById('btnNoMusic');
+
+        // 播放音乐
+        function playMusic() {
+            music.play().then(() => {
+                musicControl.classList.remove('paused');
+                musicControl.classList.add('playing');
+            }).catch((error) => {
+                console.log("浏览器限制了自动播放:", error);
+            });
+        }
+
+        // 暂停音乐
+        function pauseMusic() {
+            music.pause();
+            musicControl.classList.remove('playing');
+            musicControl.classList.add('paused');
+        }
+
+        // 点击“Yes”播放音乐并关闭弹窗
+        btnPlayMusic.addEventListener('click', function() {
+            playMusic();
+            musicPromptModal.style.display = 'none';
+        });
+
+        // 点击“Later”不播放音乐并关闭弹窗
+        btnNoMusic.addEventListener('click', function() {
+            musicPromptModal.style.display = 'none';
+        });
+
+        // 悬浮按钮点击切换播放/暂停
+        musicControl.addEventListener('click', function() {
+            if (music.paused) {
+                playMusic();
+            } else {
+                pauseMusic();
+            }
+        });
+    });
+    </script>
+    </body>
+</html>
